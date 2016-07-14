@@ -30,7 +30,13 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
       res = fuzzyfinder(prefix, history)
     else:
       res = history
-    return [ prefix + ' ' + x for x in res][:1]
+
+    # can only return signal value, otherwise the terminal will only show the longest common prefix
+    res = res[:1]
+
+    # need to add prefix in zsh
+    # otherwise, the terminal won't show anything (bash not required)
+    return [ prefix + ' ' + x for x in res]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("filepath").completer = nvim_recent_files
