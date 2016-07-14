@@ -25,15 +25,22 @@ nvim.command('let nfasd_history = v:oldfiles')
 history = nvim.vars['nfasd_history']
 
 def nvim_recent_files(prefix, parsed_args, **kwargs):
+    res = []
     if len(prefix):
-      return fuzzyfinder(prefix, history)
-    return history
-
+      res = fuzzyfinder(prefix, history)
+    else:
+      res = history
+    return [ prefix + ' ' + x for x in res][:1]
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", help="nvim recent files").completer = nvim_recent_files
+parser.add_argument("filepath").completer = nvim_recent_files
 
-argcomplete.autocomplete(parser, validator=None)
-# argcomplete.autocomplete(parser)
+def my_validator(current_input, keyword_to_check_against):
+    # warn('my_validator'+current_input+keyword_to_check_against)
+    # Pass through ALL options even if they don't all start with 'current_input'
+    return True
+
+argcomplete.autocomplete(parser, validator=my_validator, always_complete_options=False)
+
 args = parser.parse_args()
 
