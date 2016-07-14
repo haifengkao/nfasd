@@ -46,7 +46,7 @@ def my_validator(current_input, keyword_to_check_against):
     # Pass through ALL options even if they don't all start with 'current_input'
     return True
 
-argcomplete.autocomplete(parser, validator=my_validator, always_complete_options=False)
+argcomplete.autocomplete(parser, validator=my_validator, always_complete_options=False) # don't complete annoying --help
 
 args = parser.parse_args()
 
