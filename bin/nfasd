@@ -41,7 +41,8 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     return [ prefix + ' ' + x for x in res]
 
 parser = argparse.ArgumentParser()
-parser.add_argument("filepath").completer = nvim_recent_files
+parser.add_argument("-e", help='the executable name of neovim')
+parser.add_argument("filepath", help='the path of the recent file').completer = nvim_recent_files
 
 def my_validator(current_input, keyword_to_check_against):
     # warn('my_validator'+current_input+keyword_to_check_against)
@@ -54,12 +55,27 @@ argcomplete.autocomplete(parser, validator=my_validator, always_complete_options
 args, unknown = parser.parse_known_args()
 
 # print args.filepath
+# print args.e
 # print unknown
 
 if len(unknown):
   path = unknown[0]
 else:
   path = args.filepath
-execStr = 'nvim ' + path
 
-os.system(execStr)
+if not os.path.exists(path):
+  # the user might forget to press tab (like nfasd -e nvim mysomet...)
+  # help the user press "the tab"
+  res = nvim_recent_files(path, None)
+  if len(res):
+    path = res[0][len(path)+1:] # remove prefix
+
+# don't do anything when the file doesn't exist
+# we don't want user accidentally create some file with strange partial file name
+if os.path.exists(path):
+  exe_name = 'nvim'
+  if len(args.e):
+    exe_name = args.e # use the user-defined executable name
+  exec_str = exe_name + ' ' + path
+
+  os.system(exec_str)
