@@ -33,7 +33,7 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     else:
       res = history
 
-    # can only return signal value, otherwise the terminal will only show the longest common prefix
+    # can only return single value, otherwise the terminal will only show the longest common prefix
     res = res[:1]
 
     # need to add prefix in zsh
@@ -71,7 +71,7 @@ if not os.path.exists(path):
     path = res[0][len(path)+1:] # remove prefix
 
 # don't do anything when the file doesn't exist
-# we don't want user accidentally create some file with strange partial file name
+# we don't want user to accidentally create some file with strange partial file name
 if os.path.exists(path):
   exe_name = 'nvim'
   if len(args.e):
