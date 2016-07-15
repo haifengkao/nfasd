@@ -27,4 +27,5 @@ Add the following to :code:`~/.bashrc` or :code:`~/.zshrc`
     alias n='nfasd -e nvim'
     alias ny='nfasd -e nyaovim'
 
-Then you can press :code:`n myPro<tab>` to complete the file name :code:`n ~/myProject`
+Then you can press :code:`n myPro<tab>`
+to get :code:`n ~/myProject`
