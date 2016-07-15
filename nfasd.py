@@ -2,6 +2,7 @@
 # PYTHON_ARGCOMPLETE_OK
 import argcomplete, argparse
 import re     # regex module from standard library.
+import os     # to execute nvim
 from neovim import attach
 # from argcomplete import warn # logging
 
@@ -48,5 +49,16 @@ def my_validator(current_input, keyword_to_check_against):
 
 argcomplete.autocomplete(parser, validator=my_validator, always_complete_options=False) # don't complete annoying --help
 
-args = parser.parse_args()
+# args = parser.parse_args()
+args, unknown = parser.parse_known_args()
 
+# print args.filepath
+# print unknown
+
+if len(unknown):
+  path = unknown[0]
+else:
+  path = args.filepath
+execStr = 'nvim ' + path
+
+os.system(execStr)
