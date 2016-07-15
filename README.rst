@@ -29,3 +29,7 @@ Add the following to :code:`~/.bashrc` or :code:`~/.zshrc`
 
 Then you can press :code:`n myPro<tab>`
 to get :code:`n ~/myProject`
+
+Special Thanks
+--------------
+`fasd <https://github.com/clvv/fasd>`_ : the awesome command line tool
