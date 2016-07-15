@@ -1,22 +1,20 @@
 nfasd
 =====
 
-Open nvim recent files fast.
-
+Autocomplete nvim recent files in command line
 
 Installation
 ------------
 Install the python package
-
-.. code:: bash 
+:: 
     pip install nfasd
 
-Add the following line in your ~/.bashrc
-.. code:: bash 
+Add the following line in your :code:`~/.bashrc`
+::
     eval "$(register-python-argcomplete nfasd)"
 
-Alternately, if you are a zsh user, add the following to ~/.zshrc
-.. code:: bash 
+Alternately, if you are a zsh user, add the following to :code:`~/.zshrc`
+::
     autoload bashcompinit
     bashcompinit
     eval "$(register-python-argcomplete nfasd)"
@@ -24,9 +22,9 @@ Alternately, if you are a zsh user, add the following to ~/.zshrc
 Configuration
 -------------
 
-Add the following to ~/.bashrc or ~/.zshrc
-.. code:: bash 
+Add the following to :code:`~/.bashrc` or :code:`~/.zshrc`
+:: 
     alias n='nfasd -e nvim'
     alias ny='nfasd -e nyaovim'
 
-Then you can press `n myPro<tab>` to make it `n ~/myProject`
+Then you can press :code:`n myPro<tab>` to make it :code:`n ~/myProject`
