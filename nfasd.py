@@ -36,7 +36,7 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     res = res[:1]
 
     # need to add prefix in zsh
-    # otherwise, the terminal won't show anything (bash not required)
+    # otherwise, the terminal won't show anything (bash doesn't need it)
     return [ prefix + ' ' + x for x in res]
 
 parser = argparse.ArgumentParser()
