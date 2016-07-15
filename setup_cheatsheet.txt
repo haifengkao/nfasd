@@ -1,0 +1,7 @@
+upload to pypi
+--------------
+python setup.py sdist upload
+
+install locally
+--------------
+python setup.py develop
