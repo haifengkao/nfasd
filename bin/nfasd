@@ -6,6 +6,7 @@ import os     # to execute nvim
 from neovim import attach
 # from argcomplete import warn # logging
 
+# for file name partial matching
 def fuzzyfinder(user_input, collection):
     suggestions = []
     pattern = '.*?'.join(user_input)   # Converts 'djm' to 'd.*?j.*?m'
