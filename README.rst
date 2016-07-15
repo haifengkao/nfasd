@@ -13,7 +13,7 @@ Add the following line in your :code:`~/.bashrc`
 ::
     eval "$(register-python-argcomplete nfasd)"
 
-Alternatively, if you are a zsh user, add the following to :code:`~/.zshrc`
+Alternatively, if you use zsh, add the following to :code:`~/.zshrc`
 ::
     autoload bashcompinit
     bashcompinit
