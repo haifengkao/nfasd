@@ -1,23 +1,90 @@
 #!/usr/bin/env python
 # PYTHON_ARGCOMPLETE_OK
 import argcomplete, argparse
-from stringscore import liquidmetal
 import os     # to execute nvim
 from neovim import attach
-from argcomplete import warn # logging
+# from argcomplete import warn # logging
+
+# convert string into a (char -> list) map
+# the list contains the indices of char position in string
+# we use this map to find the location of corresponding char from user_input
+def index_map(user_input, string):
+  indices = {}
+  for ch in user_input:
+    if not indices.has_key(ch):
+      indices[ch] = []
+
+  for i, ch in enumerate(string):
+    if indices.has_key(ch):
+      index = indices[ch]
+      index.append(i)
+
+  return indices
+
+# for file name partial matching
+# we want to give substring the lowest score
+# 0: 'abc', '123abc456' <= exact substring
+# 1: 'abc', '12a34bc56' <= two substring 'a', 'bc'
+# 2: 'abc', '1a34b5c6' <= three substring 'a', 'b', 'c'
+# None: 'abc', '123ab456' <= 'abc' is not a subsequence of '123ab456'
+def match_fuzzy_substring(user_input, string):
+  if len(user_input) <= 0:
+    # are you kidding me?
+    return 0
+
+  max_cost = len(user_input) + 1
+  indices = index_map(user_input, string)
+
+  # first line
+  distances = []
+  for i in indices[user_input[0]]:
+    distances.append((0, i)) # cost, index
+
+  for ch in user_input[1:]:
+    if len(distances) <= 0:
+      # user_input is not a subsequence of string
+      break
+    distances_ = []
+    for i in indices[ch]:
+      min_cost = max_cost
+      for t in distances:
+        # TODO: binary search?
+        if (t[1] >= i):
+          continue
+
+        if t[1] != i - 1:
+          # non-consecutive matching
+          # cost++
+          # e.g. compare 'aa' against 'aba'
+          cost = t[0] + 1
+        else:
+          # consecutive matching
+          # e.g. compare 'aa' against 'aa' or 'baa' or 'aab'
+          cost = t[0]
+        if cost < min_cost:
+          min_cost = cost
+
+      if min_cost != max_cost: # at least we got something
+        distances_.append((min_cost, i))
+    distances = distances_
+
+  if len(distances) > 0:
+    return [x for x, _ in sorted(distances)][0] # return the final cost
+  else:
+    return None # user_input is not a subsequence of string
 
 # for file name partial matching
 def fuzzyfinder(user_input, collection):
+    collection = [x.lower() for x in collection]
+    user_input = user_input.lower()
     suggestions = []
     reverse_input = user_input[::-1]
     for item in collection:
-        first_score = liquidmetal.score(item, user_input)   # Checks if the current item matches the regex.
-        if first_score > 0.0:
-            reverse_score = liquidmetal.score(item[::-1], reverse_input)
-            match = max(first_score, reverse_score)
-            warn('len: ' + str(match) + ' ' + item)
-            suggestions.append((match, item))
-    return [x for _, x in sorted(suggestions, reverse=True)]
+        score = match_fuzzy_substring(user_input, item)   # Checks if the current item matches the regex.
+        if score != None:
+          # print (score, item)
+          suggestions.append((score, item))
+    return [x for _, x in sorted(suggestions)]
 
 # no need to validate
 def novalidator(completion, prefix):
@@ -35,7 +102,6 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     else:
       res = history
 
-    warn('matched ' + '\n'.join(res))
     # can only return single value, otherwise the terminal will only show the longest common prefix
     res = res[:1]
 
@@ -77,8 +143,29 @@ if not os.path.exists(path):
 # we don't want user to accidentally create some file with strange partial file name
 if os.path.exists(path):
   exe_name = 'nvim'
-  if len(args.e):
+  if args.e and len(args.e):
     exe_name = args.e # use the user-defined executable name
   exec_str = exe_name + ' ' + path
 
   os.system(exec_str)
+
+# if __name__ == "__main__":
+  # print match_fuzzy_substring('drop', 'Dropbox/p')         # =>None
+  # print match_fuzzy_substring('drop', 'dropbox/p')         # =>(3, 0)
+  # print match_fuzzy_substring('aa', 'aa')                  # =>(1, 0)
+  # print match_fuzzy_substring('aa', 'aab')                 # =>(1, 0)
+  # print match_fuzzy_substring('aa', 'baa')                 # =>(2, 0)
+  # print match_fuzzy_substring('aa', 'bbaa')                # =>(3, 0)
+  # print match_fuzzy_substring('aa', 'aabb')                # =>(1, 0)
+  # print match_fuzzy_substring('aa', 'abba')                # =>(3, 1)
+  # print match_fuzzy_substring('aaa', 'ababa')              # =>(4, 2)
+  # print match_fuzzy_substring('init', 'ing/install.sh')    # =>(7, 2)
+  # print match_fuzzy_substring('init', 'ing/nvim/init.vim') # =>(12, 0)
+  # print match_fuzzy_substring('init', 'ing/insitall.sh')   # =>(8, 1)
+  # print match_fuzzy_substring("foo",  "foobar")            # =>(2, 0)
+  # print match_fuzzy_substring("foo",  "FooBar")            # =>None
+  # print match_fuzzy_substring("fb",  "foobar")             # =>(3, 1)
+  # print match_fuzzy_substring("",  "foo bar")              # =>0
+  # print match_fuzzy_substring("",  "")                     # =>0
+  # print match_fuzzy_substring("f",  "")                    # =>None
+
