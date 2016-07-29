@@ -3,6 +3,7 @@
 import argcomplete, argparse
 import os     # to execute nvim
 from neovim import attach
+import operator
 # from argcomplete import warn # logging
 
 # convert string into a (char -> list) map
@@ -82,13 +83,16 @@ def fuzzyfinder(user_input, collection):
       user_input = user_input.lower()
 
     suggestions = []
-    for item in collection:
+    for i, item in enumerate(collection):
         theItem = item.lower() if ignore_case else item
         score = match_fuzzy_substring(user_input, theItem) # Checks if user_input is a subsequence of theItem
         if score != None:
           # print (score, item)
-          suggestions.append((score, item))
-    return [x for _, x in sorted(suggestions)]
+          suggestions.append((score, i, item))
+
+    # sort the result based on score and i
+    # smaller i means more recent files
+    return [x for _, _, x in sorted(suggestions, key = operator.itemgetter(0, 1))]
 
 # no need to validate
 def novalidator(completion, prefix):
