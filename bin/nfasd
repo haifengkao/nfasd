@@ -75,12 +75,16 @@ def match_fuzzy_substring(user_input, string):
 
 # for file name partial matching
 def fuzzyfinder(user_input, collection):
-    collection = [x.lower() for x in collection]
-    user_input = user_input.lower()
+    ignore_case = False
+    if user_input == user_input.lower():
+      # smart case: no uppercase char, so we just ignore cases
+      ignore_case = True
+      user_input = user_input.lower()
+
     suggestions = []
-    reverse_input = user_input[::-1]
     for item in collection:
-        score = match_fuzzy_substring(user_input, item)   # Checks if the current item matches the regex.
+        theItem = item.lower() if ignore_case else item
+        score = match_fuzzy_substring(user_input, theItem) # Checks if user_input is a subsequence of theItem
         if score != None:
           # print (score, item)
           suggestions.append((score, item))
