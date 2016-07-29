@@ -1,21 +1,23 @@
 #!/usr/bin/env python
 # PYTHON_ARGCOMPLETE_OK
 import argcomplete, argparse
-import re     # regex module from standard library.
+from stringscore import liquidmetal
 import os     # to execute nvim
 from neovim import attach
-# from argcomplete import warn # logging
+from argcomplete import warn # logging
 
 # for file name partial matching
 def fuzzyfinder(user_input, collection):
     suggestions = []
-    pattern = '.*?'.join(user_input)   # Converts 'djm' to 'd.*?j.*?m'
-    regex = re.compile(pattern)  # Compiles a regex.
+    reverse_input = user_input[::-1]
     for item in collection:
-        match = regex.search(item)   # Checks if the current item matches the regex.
-        if match:
-            suggestions.append((len(match.group()), match.start(), item))
-    return [x for _, _, x in sorted(suggestions)]
+        first_score = liquidmetal.score(item, user_input)   # Checks if the current item matches the regex.
+        if first_score > 0.0:
+            reverse_score = liquidmetal.score(item[::-1], reverse_input)
+            match = max(first_score, reverse_score)
+            warn('len: ' + str(match) + ' ' + item)
+            suggestions.append((match, item))
+    return [x for _, x in sorted(suggestions, reverse=True)]
 
 # no need to validate
 def novalidator(completion, prefix):
@@ -33,6 +35,7 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     else:
       res = history
 
+    warn('matched ' + '\n'.join(res))
     # can only return single value, otherwise the terminal will only show the longest common prefix
     res = res[:1]
 
