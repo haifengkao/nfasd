@@ -13,14 +13,10 @@ _bxrun_zsh() {
     compadd -U `_bxrun_lst`
 }
 
-# copied from fasd
-#[ "$ZSH_VERSION" ] && emulate sh && setopt localoptions
-#setopt MENU_COMPLETE
-#setopt  NO_LIST_BEEP
 if type compdef >/dev/null 2>/dev/null; then
     # zsh
     compdef _bxrun_zsh bxrun
-#else if type complete >/dev/null 2>/dev/null; then
-    ## bash
-    #complete -F _bxrun bxrun
-fi;
+else if type complete >/dev/null 2>/dev/null; then
+    # bash
+    complete -F _bxrun bxrun
+fi; fi
