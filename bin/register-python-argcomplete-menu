@@ -62,7 +62,7 @@ _argcomplete_menu_zsh() {
   if [ ${#matches[@]} -le "1" ]; then
       # if there is only one match, a strange space will be put at the end of the line
       # remove it by http://stackoverflow.com/questions/369758/how-to-trim-whitespace-from-a-bash-variable
-      matches="${val//[[:space:]]/}"
+      matches=("${val//[[:space:]]/}")
   fi
 
   if [[ -n $matches ]]; then
@@ -71,8 +71,16 @@ _argcomplete_menu_zsh() {
       compset -S '/*' && matches=( ${matches%%/*} )
       compadd -U -Q -f "${suf[@]}" -a matches && ret=0
     else
-      # reference http://zsh.sourceforge.net/Doc/Release/Completion-Widgets.html#Completion-Widgets
-      compadd -U $matches && ret=0
+      # comapp reference http://zsh.sourceforge.net/Doc/Release/Completion-Widgets.html#Completion-Widgets
+      count=0
+      for item in "${matches[@]}"
+      do
+        # -V for completion orders http://stackoverflow.com/questions/15140396/zsh-completion-order
+        compadd -U -V $count $item
+        (( count++ ))
+      done
+      ret=0
+
     fi
   fi
 
