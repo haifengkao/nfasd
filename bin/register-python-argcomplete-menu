@@ -24,7 +24,7 @@ _argcomplete_menu_lst() {
     # local COMP_POINT='2'
     # local _ARGCOMPLETE_COMP_WORDBREAKS=' '
 
-    local IFS='\013'
+    local IFS='\n'
     COMPREPLY=( $(IFS="$IFS" \
                   COMP_LINE="$COMP_LINE" \
                   COMP_POINT="$COMP_POINT" \
@@ -37,6 +37,8 @@ _argcomplete_menu_lst() {
 }
 
 _argcomplete_menu_zsh() {
+  compstate[insert]=menu # no expand
+
   local ret=1
   local -a suf matches
   local -x COMP_POINT COMP_CWORD
@@ -54,7 +56,14 @@ _argcomplete_menu_zsh() {
 
   [[ ${argv[${argv[(I)nospace]:-0}-1]} = -o ]] && suf=( -S '' )
 
-  matches=`_argcomplete_menu_lst %(executable)s`
+  val=`_argcomplete_menu_lst %(executable)s`
+  matches=("${(@s/\013/)val}")
+
+  if [ ${#matches[@]} -le "1" ]; then
+      # if there is only one match, a strange space will be put at the end of the line
+      # remove it by http://stackoverflow.com/questions/369758/how-to-trim-whitespace-from-a-bash-variable
+      matches="${val//[[:space:]]/}"
+  fi
 
   if [[ -n $matches ]]; then
     if [[ ${argv[${argv[(I)filenames]:-0}-1]} = -o ]]; then
@@ -62,7 +71,8 @@ _argcomplete_menu_zsh() {
       compset -S '/*' && matches=( ${matches%%/*} )
       compadd -U -Q -f "${suf[@]}" -a matches && ret=0
     else
-      compadd -U -Q "${suf[@]}" -a matches && ret=0
+      # reference http://zsh.sourceforge.net/Doc/Release/Completion-Widgets.html#Completion-Widgets
+      compadd -U $matches && ret=0
     fi
   fi
 
@@ -83,11 +93,6 @@ _python_argcomplete_menu() {
         unset COMPREPLY
     fi
 }
-
-# _python_argcomplete_menu_zsh() {
-    # compstate[insert]=menu # no expand
-    # compadd -U `_argcomplete_menu_lst %(executable)s`
-# }
 
 if type compdef >/dev/null 2>/dev/null; then
     # zsh
