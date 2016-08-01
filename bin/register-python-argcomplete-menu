@@ -37,7 +37,7 @@ _argcomplete_menu_lst() {
 }
 
 _python_argcomplete_menu() {
-    COMPREPLY='$( _argcomplete_menu_lst )'
+    COMPREPLY=`_argcomplete_menu_lst %(executable)s`
     if [[ $? != 0 ]]; then
         unset COMPREPLY
     fi
@@ -45,7 +45,7 @@ _python_argcomplete_menu() {
 
 _python_argcomplete_menu_zsh() {
     compstate[insert]=menu # no expand
-    compadd -U `_argcomplete_menu_lst`
+    compadd -U `_argcomplete_menu_lst %(executable)s`
 }
 
 if type compdef >/dev/null 2>/dev/null; then
