@@ -110,6 +110,8 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     else:
       res = history
 
+    # limit choices to 8, otherwise the screen might be cluttered with lines
+    res = res[:8]
     return res
     # print res
     # can only return single value, otherwise the terminal will only show the longest common prefix
