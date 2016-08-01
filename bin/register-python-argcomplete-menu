@@ -19,17 +19,20 @@ import argparse
 
 shellcode = '''
 _argcomplete_menu_lst() {
+    # unit test variables, don't use them
+    # local COMP_LINE='hello world'
+    # local COMP_POINT='2'
+    # local _ARGCOMPLETE_COMP_WORDBREAKS=' '
+
     local IFS='\013'
-    local COMP_LINE='hello world'
-    local COMP_POINT='2'
-    local _ARGCOMPLETE_COMP_WORDBREAKS=' '
     COMPREPLY=( $(IFS="$IFS" \
                   COMP_LINE="$COMP_LINE" \
                   COMP_POINT="$COMP_POINT" \
                   _ARGCOMPLETE_COMP_WORDBREAKS="$COMP_WORDBREAKS" \
                   _ARGCOMPLETE=1 \
-                  "/usr/local/bin/nfasd" 8>&1 9>&2 1>/dev/null 2>/dev/null) )
+                  "$1" 8>&1 9>&2 1>/dev/null 2>/dev/null) )
 
+    # bash use echo to return results
     echo $COMPREPLY
 }
 
