@@ -13,10 +13,12 @@ Add the following line in your :code:`~/.bashrc`
 ::
     eval "$(register-python-argcomplete nfasd)"
 
+    # use TAB to cycle through all possible matches
+    # optional but highly recommended
+    [[ $- = *i* ]] && bind TAB:menu-complete    
+
 Alternatively, if you use zsh, add the following to :code:`~/.zshrc`
 ::
-    autoload bashcompinit
-    bashcompinit
     eval "$(register-python-argcomplete nfasd)"
 
 Configuration
