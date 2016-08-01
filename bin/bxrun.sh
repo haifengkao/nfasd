@@ -1,22 +1,31 @@
 # bash completion for bxrun (/home/ecuomo/projects/bashx/bxrun)
-_bxrun_lst() {
-    echo 'abc bcd def'
+_argcomplete_menu_lst() {
+    return ( $(IFS="$IFS" \
+                  COMP_LINE="$COMP_LINE" \
+                  COMP_POINT="$COMP_POINT" \
+                  _ARGCOMPLETE_COMP_WORDBREAKS="$COMP_WORDBREAKS" \
+                  _ARGCOMPLETE=1 \
+                  "$1" 8>&1 9>&2 1>/dev/null 2>/dev/null) )
 }
-_bxrun() {
-    local cur
-    COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=( $( compgen -W '$( _bxrun_lst )' -- $cur  ) )
+
+_python_argcomplete_menu() {
+    local IFS='\013'
+    COMPREPLY='$( _argcomplete_menu_lst )' 
+    if [[ $? != 0 ]]; then
+        unset COMPREPLY
+    fi
 }
-_bxrun_zsh() {
+
+_python_argcomplete_menu_zsh() {
     compstate[insert]=menu # no expand
-    compadd -U `_bxrun_lst`
+    compadd -U `_argcomplete_menu_lst`
 }
 
 if type compdef >/dev/null 2>/dev/null; then
     # zsh
-    compdef _bxrun_zsh bxrun
+    compdef _python_argcomplete_menu_zsh "%(executable)s"
 else if type complete >/dev/null 2>/dev/null; then
     # bash
-    complete -F _bxrun bxrun
+    complete %(complete_opts)s -F _python_argcomplete_menu "%(executable)s"
 fi; fi
+
