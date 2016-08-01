@@ -19,16 +19,21 @@ import argparse
 
 shellcode = '''
 _argcomplete_menu_lst() {
-    return ( $(IFS="$IFS" \
+    local IFS='\013'
+    local COMP_LINE='hello world'
+    local COMP_POINT='2'
+    local _ARGCOMPLETE_COMP_WORDBREAKS=' '
+    COMPREPLY=( $(IFS="$IFS" \
                   COMP_LINE="$COMP_LINE" \
                   COMP_POINT="$COMP_POINT" \
                   _ARGCOMPLETE_COMP_WORDBREAKS="$COMP_WORDBREAKS" \
                   _ARGCOMPLETE=1 \
-                  "$1" 8>&1 9>&2 1>/dev/null 2>/dev/null) )
+                  "/usr/local/bin/nfasd" 8>&1 9>&2 1>/dev/null 2>/dev/null) )
+
+    echo $COMPREPLY
 }
 
 _python_argcomplete_menu() {
-    local IFS='\013'
     COMPREPLY='$( _argcomplete_menu_lst )'
     if [[ $? != 0 ]]; then
         unset COMPREPLY
