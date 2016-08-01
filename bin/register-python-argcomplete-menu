@@ -24,7 +24,6 @@ _argcomplete_menu_lst() {
     # local COMP_POINT='2'
     # local _ARGCOMPLETE_COMP_WORDBREAKS=' '
 
-    local IFS='\n'
     COMPREPLY=( $(IFS="$IFS" \
                   COMP_LINE="$COMP_LINE" \
                   COMP_POINT="$COMP_POINT" \
@@ -37,6 +36,9 @@ _argcomplete_menu_lst() {
 }
 
 _argcomplete_menu_zsh() {
+  # need different IFS for bash and zsh. why?
+  local IFS='\n'
+
   compstate[insert]=menu # no expand
 
   local ret=1
@@ -96,6 +98,8 @@ _argcomplete_menu_zsh() {
 }
 
 _python_argcomplete_menu() {
+    local IFS='\013'
+
     COMPREPLY=`_argcomplete_menu_lst %(executable)s`
     if [[ $? != 0 ]]; then
         unset COMPREPLY
