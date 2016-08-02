@@ -99,10 +99,6 @@ def novalidator(completion, prefix):
     # return TRUE
     return completion.startwith(prefix)
 
-nvim = attach('child', argv=["nvim", "--embed"])
-nvim.command('let nfasd_history = v:oldfiles')
-history = nvim.vars['nfasd_history']
-
 # only return existed files
 def exist_filter(files, max_count):
   res = []
@@ -115,6 +111,10 @@ def exist_filter(files, max_count):
   return res
 
 def nvim_recent_files(prefix, parsed_args, **kwargs):
+    nvim = attach('child', argv=["nvim", "--embed"])
+    nvim.command('let nfasd_history = v:oldfiles')
+    history = nvim.vars['nfasd_history']
+
     res = []
     if len(prefix):
       res = fuzzyfinder(prefix, history)
