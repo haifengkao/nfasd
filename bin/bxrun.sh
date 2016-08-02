@@ -1,4 +1,3 @@
-# bash completion for bxrun (/home/ecuomo/projects/bashx/bxrun)
 _argcomplete_menu_lst() {
     return ( $(IFS="$IFS" \
                   COMP_LINE="$COMP_LINE" \
