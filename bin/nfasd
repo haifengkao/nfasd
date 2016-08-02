@@ -103,6 +103,17 @@ nvim = attach('child', argv=["nvim", "--embed"])
 nvim.command('let nfasd_history = v:oldfiles')
 history = nvim.vars['nfasd_history']
 
+# only return existed files
+def exist_filter(files, max_count):
+  res = []
+  for i, path in enumerate(files):
+    if os.path.exists(path):
+      res.append(path)
+    if len(res) >= max_count:
+      break
+
+  return res
+
 def nvim_recent_files(prefix, parsed_args, **kwargs):
     res = []
     if len(prefix):
@@ -111,7 +122,7 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
       res = history
 
     # limit choices to 8, otherwise the screen might be cluttered with lines
-    res = res[:8]
+    res = exist_filter(res, 8)
     return res
     # print res
     # can only return single value, otherwise the terminal will only show the longest common prefix
