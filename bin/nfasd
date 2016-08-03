@@ -137,10 +137,12 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     cwd = os.getcwd()
     files = file_completer(prefix, cwd)
 
-    is_case_sensitive = True
-    if prefix == prefix.lower():
+    is_case_sensitive = False
+
+    # case insensitive is better in all scenarios
+    # if prefix == prefix.lower():
       # smart case: no uppercase char, so we just ignore cases
-      is_case_sensitive = False
+      # is_case_sensitive = False
 
     matched = []
     if len(prefix):
