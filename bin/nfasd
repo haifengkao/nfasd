@@ -196,7 +196,7 @@ if not os.path.exists(path):
   res = nvim_recent_files(path, None)
 
   if len(res):
-    path = res[0][len(path)+1:] # remove prefix
+    path = res[0]
 
 # don't do anything when the file doesn't exist
 # we don't want user to accidentally create some file with strange partial file name
