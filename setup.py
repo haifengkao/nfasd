@@ -9,7 +9,7 @@ setup(name='nfasd',
       author_email='haifeng@cocoaspice.in',
       license='MIT',
       packages=['nfasd'],
-      scripts=['bin/nfasd'],
+      scripts=['bin/nfasd', 'bin/register-python-argcomplete-menu'],
       install_requires=[
           'argcomplete',
           'neovim',
