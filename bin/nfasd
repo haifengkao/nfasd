@@ -159,8 +159,8 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     res = exist_filter(collection, 8)
 
     # if the result is a subdir of current working dir
-    # remove the common prefix
-    res = [os.path.relpath(x, cwd) if x.startswith(cwd) else x for x in res]
+    # remove the common prefix if it is not current working directory ('./' looks weird in terminal)
+    res = [os.path.relpath(x, cwd) if x.startswith(cwd) and x != cwd else x for x in res]
 
     # add trailing slash for directories
     res = [os.path.join(x, '') if os.path.isdir(x) else x for x in res]
