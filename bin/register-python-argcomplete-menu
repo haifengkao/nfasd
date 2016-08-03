@@ -18,11 +18,7 @@ import sys
 import argparse
 
 shellcode = '''
-_argcomplete_menu_lst() {
-    # unit test variables, don't use them
-    # local COMP_LINE='hello world'
-    # local COMP_POINT='2'
-    # local _ARGCOMPLETE_COMP_WORDBREAKS=' '
+_python_argcomplete_lst() {
 
     COMPREPLY=( $(IFS="$IFS" \
                   COMP_LINE="$COMP_LINE" \
@@ -35,10 +31,11 @@ _argcomplete_menu_lst() {
     echo $COMPREPLY
 }
 
-_argcomplete_menu_zsh() {
+_python_argcomplete_zsh() {
   # need different IFS for bash and zsh. why?
   local IFS='\n'
 
+  # use tab to cycle throught all possible matches
   compstate[insert]=menu # no expand
 
   local ret=1
@@ -58,7 +55,10 @@ _argcomplete_menu_zsh() {
 
   [[ ${argv[${argv[(I)nospace]:-0}-1]} = -o ]] && suf=( -S '' )
 
-  val=`_argcomplete_menu_lst %(executable)s`
+  # get result from python script
+  val=`_python_argcomplete_lst %(executable)s`
+
+  # here we have to use bash's IFS (\013) to separate the val string into an array, why?
   matches=("${(@s/\013/)val}")
 
   if [ ${#matches[@]} -le "1" ]; then
@@ -73,12 +73,14 @@ _argcomplete_menu_zsh() {
       compset -S '/*' && matches=( ${matches%%/*} )
       compadd -U -Q -f "${suf[@]}" -a matches && ret=0
     else
-      # comapp reference http://zsh.sourceforge.net/Doc/Release/Completion-Widgets.html#Completion-Widgets
+      # comadd reference http://zsh.sourceforge.net/Doc/Release/Completion-Widgets.html#Completion-Widgets
       count=0
       for item in "${matches[@]}"
       do
-        # -V for completion orders http://stackoverflow.com/questions/15140396/zsh-completion-order
-        compadd -U -V $count $item
+        # -V to preserve the completion orders http://stackoverflow.com/questions/15140396/zsh-completion-order
+        # -S to remove the trailing space after the completion. equal to 'complete -o nospace' in bash
+        # TODO: allow user to specify the complete_opts ?
+        compadd -U -S '' -V $count $item
         (( count++ ))
       done
       ret=0
@@ -97,10 +99,10 @@ _argcomplete_menu_zsh() {
   return ret
 }
 
-_python_argcomplete_menu() {
+_python_argcomplete() {
     local IFS='\013'
 
-    COMPREPLY=`_argcomplete_menu_lst %(executable)s`
+    COMPREPLY=`_python_argcomplete_lst %(executable)s`
     if [[ $? != 0 ]]; then
         unset COMPREPLY
     fi
@@ -108,10 +110,10 @@ _python_argcomplete_menu() {
 
 if type compdef >/dev/null 2>/dev/null; then
     # zsh
-    compdef _argcomplete_menu_zsh "%(executable)s"
+    compdef _python_argcomplete_zsh "%(executable)s"
 else if type complete >/dev/null 2>/dev/null; then
     # bash
-    complete %(complete_opts)s -F _python_argcomplete_menu "%(executable)s"
+    complete %(complete_opts)s -F _python_argcomplete "%(executable)s"
 fi; fi
 '''
 
