@@ -75,17 +75,16 @@ def match_fuzzy_substring(user_input, string):
     return None # user_input is not a subsequence of string
 
 # for file name partial matching
-def fuzzyfinder(user_input, collection):
-    ignore_case = False
-    if user_input == user_input.lower():
-      # smart case: no uppercase char, so we just ignore cases
-      ignore_case = True
+def fuzzyfinder(user_input, collection, is_case_sensitive = True):
+    if not is_case_sensitive:
       user_input = user_input.lower()
 
     suggestions = []
     for i, item in enumerate(collection):
-        theItem = item.lower() if ignore_case else item
-        score = match_fuzzy_substring(user_input, theItem) # Checks if user_input is a subsequence of theItem
+      if is_case_sensitive:
+        score = match_fuzzy_substring(user_input, item) # Checks if user_input is a subsequence of theItem
+      else:
+        score = match_fuzzy_substring(user_input, item.lower()) # Checks if user_input is a subsequence of theItem
         if score != None:
           # print (score, item)
           suggestions.append((score, i, item))
@@ -99,24 +98,74 @@ def novalidator(completion, prefix):
     # return TRUE
     return completion.startwith(prefix)
 
-nvim = attach('child', argv=["nvim", "--embed"])
-nvim.command('let nfasd_history = v:oldfiles')
-history = nvim.vars['nfasd_history']
+# only return existed files
+def exist_filter(files, max_count):
+  res = []
+  for i, path in enumerate(files):
+    if os.path.exists(path):
+      res.append(path)
+    if len(res) >= max_count:
+      break
+
+  return res
+
+def file_completer(prefix, cwd):
+  res = []
+
+  # if user typed a complete dir name, search for the files in it instead
+  prefix = os.path.join(prefix, '') if os.path.isdir(prefix) else prefix
+
+  (prefix_path, last_item) = os.path.split(prefix)
+
+  target_dir = os.path.join(cwd, prefix_path)
+
+  for i in os.listdir(target_dir):
+    if i.startswith(last_item):
+      res.append(os.path.join(target_dir, i))
+
+  return res
 
 def nvim_recent_files(prefix, parsed_args, **kwargs):
-    res = []
+    # handle ~/my_file or ~abc cases
+    prefix = os.path.expanduser(os.path.normpath(prefix))
+
+    # get nvim recent files
+    nvim = attach('child', argv=["nvim", "--embed"])
+    nvim.command('let nfasd_history = v:oldfiles')
+    history = nvim.vars['nfasd_history']
+
+    cwd = os.getcwd()
+    files = file_completer(prefix, cwd)
+
+    is_case_sensitive = True
+    if prefix == prefix.lower():
+      # smart case: no uppercase char, so we just ignore cases
+      is_case_sensitive = False
+
+    matched = []
     if len(prefix):
-      res = fuzzyfinder(prefix, history)
+      matched = fuzzyfinder(prefix, history, is_case_sensitive)
     else:
-      res = history
+      matched = history
 
-    # print res
-    # can only return single value, otherwise the terminal will only show the longest common prefix
-    res = res[:1]
+    # give local files higher priority over nvim history (my intuition?)
+    collection = files + matched
 
-    # need to add prefix in zsh
-    # otherwise, the terminal won't show anything (bash doesn't need it)
-    return [ prefix + ' ' + x for x in res]
+    # remove duplicated files
+    seen = {}
+    collection = [seen.setdefault(x, x) for x in collection if x not in seen]
+
+    # limit choices to 8, otherwise the screen might be cluttered with lines
+    res = exist_filter(collection, 8)
+
+    # if the result is a subdir of current working dir
+    # remove the common prefix
+    res = [os.path.relpath(x, cwd) if x.startswith(cwd) else x for x in res]
+
+    # add trailing slash for directories
+    res = [os.path.join(x, '') if os.path.isdir(x) else x for x in res]
+
+    return res
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-e", help='the executable name of neovim')
