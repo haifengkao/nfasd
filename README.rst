@@ -11,7 +11,7 @@ Install the python package
 
 Add the following line in your :code:`~/.bashrc`
 ::
-    eval "$(register-python-argcomplete nfasd)"
+    eval "$(register-python-argcomplete-menu nfasd)"
 
     # use TAB to cycle through all possible matches
     # optional but highly recommended
@@ -19,7 +19,10 @@ Add the following line in your :code:`~/.bashrc`
 
 Alternatively, if you use zsh, add the following to :code:`~/.zshrc`
 ::
-    eval "$(register-python-argcomplete nfasd)"
+    eval "$(register-python-argcomplete-menu nfasd)"
+    # stop shell from beeping for every complete
+    # optional but highly recommended
+    setopt NO_LIST_BEEP
 
 Configuration
 -------------
