@@ -111,6 +111,10 @@ def exist_filter(files, max_count):
 
 def file_completer(prefix, cwd):
   res = []
+
+  # if user typed a complete dir name, search for the files in it instead
+  prefix = os.path.join(prefix, '') if os.path.isdir(prefix) else prefix
+
   (prefix_path, last_item) = os.path.split(prefix)
 
   target_dir = os.path.join(cwd, prefix_path)
