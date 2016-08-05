@@ -119,6 +119,9 @@ def file_completer(prefix, cwd):
 
   target_dir = os.path.join(cwd, prefix_path)
 
+  if not os.path.isdir(target_dir):
+    return res
+
   for i in os.listdir(target_dir):
     if i.startswith(last_item):
       res.append(os.path.join(target_dir, i))
