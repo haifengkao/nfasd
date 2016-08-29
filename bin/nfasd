@@ -23,7 +23,8 @@ def index_map(user_input, string):
   return indices
 
 # for file name partial matching
-# we want to give substring the lowest score
+# objective: find the largest chunk of keyword
+# we want to give substring the lowest score (the lower the better)
 # 0: 'abc', '123abc456' <= exact substring
 # 1: 'abc', '12a34bc56' <= two substring 'a', 'bc'
 # 2: 'abc', '1a34b5c6' <= three substring 'a', 'b', 'c'
