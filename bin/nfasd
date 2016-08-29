@@ -109,7 +109,8 @@ def exist_filter(files, max_count):
 
   return res
 
-def file_completer(prefix, cwd):
+# returns the files in current folder which matches prefix
+def file_completer(prefix, cwd, is_case_sensitive):
   res = []
 
   # if user typed a complete dir name, search for the files in it instead
@@ -120,10 +121,15 @@ def file_completer(prefix, cwd):
   target_dir = os.path.join(cwd, prefix_path)
 
   if not os.path.isdir(target_dir):
-    return res
+    return []
+
+  if not is_case_sensitive:
+    last_item = last_item.lower()
 
   for i in os.listdir(target_dir):
-    if i.startswith(last_item):
+    filename = i if is_case_sensitive else i.lower()
+
+    if filename.startswith(last_item):
       res.append(os.path.join(target_dir, i))
 
   return res
@@ -138,7 +144,6 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     history = nvim.vars['nfasd_history']
 
     cwd = os.getcwd()
-    files = file_completer(prefix, cwd)
 
     is_case_sensitive = False
 
@@ -146,6 +151,9 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     # if prefix == prefix.lower():
       # smart case: no uppercase char, so we just ignore cases
       # is_case_sensitive = False
+
+    # search for local files
+    files = file_completer(prefix, cwd, is_case_sensitive)
 
     matched = []
     if len(prefix):
