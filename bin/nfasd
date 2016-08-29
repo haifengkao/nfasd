@@ -117,7 +117,7 @@ def exist_filter(files, max_count):
   return res
 
 # returns the files in current folder which matches prefix
-def file_completer(prefix, cwd, is_case_sensitive):
+def file_prefix_completer(prefix, cwd, is_case_sensitive, prefix_only=True):
   res = []
 
   # if user typed a complete dir name, search for the files in it instead
@@ -136,12 +136,17 @@ def file_completer(prefix, cwd, is_case_sensitive):
   for i in os.listdir(target_dir):
     filename = i if is_case_sensitive else i.lower()
 
-    if filename.startswith(last_item):
+    if prefix_only and filename.startswith(last_item):
+      # prefix matching
+      res.append(os.path.join(target_dir, i))
+    elif not prefix_only and last_item in filename:
+      # substring matching
       res.append(os.path.join(target_dir, i))
 
   return res
 
 def nvim_recent_files(prefix, parsed_args, **kwargs):
+    MAX_OUTPUT_NUMBER = 8 # limit choices to 8, otherwise the screen might be cluttered with lines
     # handle ~/my_file or ~abc cases
     prefix = os.path.expanduser(os.path.normpath(prefix))
 
@@ -160,11 +165,13 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
       # is_case_sensitive = False
 
     # search for local files
-    files = file_completer(prefix, cwd, is_case_sensitive)
+    files = file_prefix_completer(prefix, cwd, is_case_sensitive)
 
     matched = []
-    if len(prefix):
-      matched = fuzzyfinder(prefix, history, is_case_sensitive)
+    if len(prefix) and len(files) < MAX_OUTPUT_NUMBER: # don't need to do expensive fuzzy matching if we already got enough data
+      # fuzzy file matching, will match infix or suffix substring
+      fuzzy_files = file_prefix_completer(prefix, cwd, is_case_sensitive, False)
+      matched = fuzzyfinder(prefix, fuzzy_files + history, is_case_sensitive)
     else:
       matched = history
 
@@ -175,8 +182,7 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     seen = {}
     collection = [seen.setdefault(x, x) for x in collection if x not in seen]
 
-    # limit choices to 8, otherwise the screen might be cluttered with lines
-    res = exist_filter(collection, 8)
+    res = exist_filter(collection, MAX_OUTPUT_NUMBER)
 
     # if the result is a subdir of current working dir
     # remove the common prefix if it is not current working directory ('./' looks weird in terminal)
