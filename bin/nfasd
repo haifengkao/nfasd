@@ -23,7 +23,8 @@ def index_map(user_input, string):
   return indices
 
 # for file name partial matching
-# we want to give substring the lowest score
+# objective: find the largest chunk of keyword
+# we want to give substring the lowest score (the lower the better)
 # 0: 'abc', '123abc456' <= exact substring
 # 1: 'abc', '12a34bc56' <= two substring 'a', 'bc'
 # 2: 'abc', '1a34b5c6' <= three substring 'a', 'b', 'c'
@@ -70,7 +71,7 @@ def match_fuzzy_substring(user_input, string):
     distances = distances_
 
   if len(distances) > 0:
-    return [x for x, _ in sorted(distances)][0] # return the final cost
+    return sorted(distances)[0] # return tuple (final cost, last matching index)
   else:
     return None # user_input is not a subsequence of string
 
@@ -82,16 +83,22 @@ def fuzzyfinder(user_input, collection, is_case_sensitive = True):
     suggestions = []
     for i, item in enumerate(collection):
       if is_case_sensitive:
-        score = match_fuzzy_substring(user_input, item) # Checks if user_input is a subsequence of theItem
+        res = match_fuzzy_substring(user_input, item) # Checks if user_input is a subsequence of theItem
       else:
-        score = match_fuzzy_substring(user_input, item.lower()) # Checks if user_input is a subsequence of theItem
-        if score != None:
+        res = match_fuzzy_substring(user_input, item.lower()) # Checks if user_input is a subsequence of theItem
+        if res != None:
+          score = res[0]
+
+          # last_matching_index_right_to_left example:
+          # 1: 'abc', '1a34b5c6'
+          # 3: 'abc', '123abc456'
+          last_matching_index_right_to_left = len(item) - res[1] - 1
           # print (score, item)
-          suggestions.append((score, i, item))
+          suggestions.append((score, last_matching_index_right_to_left, i, item)) # usually user will type filename instead of path. last_matching_index will give filename higher weight
 
     # sort the result based on score and i
     # smaller i means more recent files
-    return [x for _, _, x in sorted(suggestions, key = operator.itemgetter(0, 1))]
+    return [x for _, _, _, x in sorted(suggestions, key = operator.itemgetter(0, 1, 2))]
 
 # no need to validate
 def novalidator(completion, prefix):
@@ -109,7 +116,8 @@ def exist_filter(files, max_count):
 
   return res
 
-def file_completer(prefix, cwd):
+# returns the files in current folder which matches prefix
+def file_completer(prefix, cwd, is_case_sensitive):
   res = []
 
   # if user typed a complete dir name, search for the files in it instead
@@ -119,8 +127,16 @@ def file_completer(prefix, cwd):
 
   target_dir = os.path.join(cwd, prefix_path)
 
+  if not os.path.isdir(target_dir):
+    return []
+
+  if not is_case_sensitive:
+    last_item = last_item.lower()
+
   for i in os.listdir(target_dir):
-    if i.startswith(last_item):
+    filename = i if is_case_sensitive else i.lower()
+
+    if filename.startswith(last_item):
       res.append(os.path.join(target_dir, i))
 
   return res
@@ -135,12 +151,16 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     history = nvim.vars['nfasd_history']
 
     cwd = os.getcwd()
-    files = file_completer(prefix, cwd)
 
-    is_case_sensitive = True
-    if prefix == prefix.lower():
+    is_case_sensitive = False
+
+    # case insensitive is better in all scenarios
+    # if prefix == prefix.lower():
       # smart case: no uppercase char, so we just ignore cases
-      is_case_sensitive = False
+      # is_case_sensitive = False
+
+    # search for local files
+    files = file_completer(prefix, cwd, is_case_sensitive)
 
     matched = []
     if len(prefix):
