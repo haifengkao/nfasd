@@ -58,7 +58,7 @@ def nvim_oldfiles(shada_path):
       type = unpacker.unpack()
 
       unpacker.skip() # timestamp
-      unpacker.skip() # data_lenght in bytes
+      unpacker.skip() # data_length in bytes
       if not type in valid_types:
         unpacker.skip()
       else:
