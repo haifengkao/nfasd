@@ -40,7 +40,7 @@ def match_fuzzy_substring(user_input, string):
   # first line
   distances = []
   for i in indices[user_input[0]]:
-    distances.append((0, i)) # cost, index
+    distances.append((0, [i])) # cost, indices
 
   for ch in user_input[1:]:
     if len(distances) <= 0:
@@ -49,12 +49,13 @@ def match_fuzzy_substring(user_input, string):
     distances_ = []
     for i in indices[ch]:
       min_cost = max_cost
+      min_indices = []
       for t in distances:
         # TODO: binary search?
-        if (t[1] >= i):
+        if (t[1][-1] >= i):
           continue
 
-        if t[1] != i - 1:
+        if t[1][-1] != i - 1:
           # non-consecutive matching
           # cost++
           # e.g. compare 'aa' against 'aba'
@@ -65,9 +66,10 @@ def match_fuzzy_substring(user_input, string):
           cost = t[0]
         if cost < min_cost:
           min_cost = cost
+          min_indices = t[1]
 
       if min_cost != max_cost: # at least we got something
-        distances_.append((min_cost, i))
+        distances_.append((min_cost, min_indices+[i]))
     distances = distances_
 
   if len(distances) > 0:
