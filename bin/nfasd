@@ -73,30 +73,39 @@ def match_fuzzy_substring(user_input, string):
     distances = distances_
 
   if len(distances) > 0:
-    return sorted(distances)[0] # return tuple (final cost, last matching index)
+    return sorted(distances)[0] # return tuple (final cost, an array of last matching indices)
   else:
     return None # user_input is not a subsequence of string
 
 # for file name partial matching
 def fuzzyfinder(user_input, collection, is_case_sensitive = True):
+    # reverse matching favors the matched char near the end
+    # in our case, it prefers the result that matches files name
+    is_reverse_matching = True
     if not is_case_sensitive:
       user_input = user_input.lower()
+    if is_reverse_matching:
+      user_input = user_input[::-1]
 
     suggestions = []
     for i, item in enumerate(collection):
-      if is_case_sensitive:
-        res = match_fuzzy_substring(user_input, item) # Checks if user_input is a subsequence of theItem
-      else:
-        res = match_fuzzy_substring(user_input, item.lower()) # Checks if user_input is a subsequence of theItem
-        if res != None:
-          score = res[0]
+      matching_item = item
+      if not is_case_sensitive:
+        matching_item = item.lower()
+      if is_reverse_matching:
+        matching_item = matching_item[::-1]
 
-          # last_matching_index_right_to_left example:
-          # 1: 'abc', '1a34b5c6'
-          # 3: 'abc', '123abc456'
-          last_matching_index_right_to_left = len(item) - res[1] - 1
-          # print (score, item)
-          suggestions.append((score, last_matching_index_right_to_left, i, item)) # usually user will type filename instead of path. last_matching_index will give filename higher weight
+      res = match_fuzzy_substring(user_input, matching_item) # Checks if user_input is a subsequence of theItem
+      if res != None:
+        score = res[0]
+
+        # first_matching_index example:
+        # 1: 'abc', '1a34b5c6'
+        # 3: 'abc', '123abc456'
+        # if is_reverse_matching is True, the first_matching_index is index the last match char in the reversed string
+        first_matching_index = res[1][0]
+        # print (score, item)
+        suggestions.append((score, first_matching_index, i, item)) # usually user will type filename instead of path. last_matching_index will give filename higher weight
 
     # sort the result based on score and i
     # smaller i means more recent files
