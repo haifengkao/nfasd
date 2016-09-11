@@ -2,9 +2,76 @@
 # PYTHON_ARGCOMPLETE_OK
 import argcomplete, argparse
 import os     # to execute nvim
-from neovim import attach
+import platform # to find XDG_DATA_HOME
 import operator
+import msgpack # to parse shada
+from sets import Set
 # from argcomplete import warn # logging
+
+def shada_path():
+  # Unix:     ~/.local/share/nvim/
+  # Windows:  ~/AppData/Local/nvim-data/
+  key = 'XDG_DATA_HOME'
+  path = None
+  if key in os.environ:
+    path = os.environ[key]
+  if not path:
+    if platform.system() == 'Windows':
+      path = '~/AppData/Local'
+    else:
+      path = '~/.local/share'
+  if platform.system() == 'Windows':
+    path = os.path.join(path, 'nvim-data')
+  else:
+    path = os.path.join(path, 'nvim')
+  path = os.path.join(path, 'shada', 'main.shada')
+  return path
+
+# return an array of v:oldfiles
+def nvim_oldfiles(shada_path):
+  shada_path = os.path.expanduser(shada_path)
+  f = open(shada_path, 'rb')
+  unpacker = msgpack.Unpacker(f)
+
+  # see https://neovim.io/doc/user/starting.html#shada-format
+
+  # 1. First goes type of the entry.  Object type must be an unsigned integer.
+  #    Object type must not be equal to zero.
+  # 2. Second goes entry timestamp.  It must also be an unsigned integer.
+  # 3. Third goes the length of the fourth entry.  Unsigned integer as well, used
+  #    for fast skipping without parsing.
+  # 4. Fourth is actual entry data.  All currently used ShaDa entries use
+  #    containers to hold data: either map or array.  Exact format depends on the
+  #    entry type:
+
+  # 7 (GlobalMark)
+  # 8 (Jump)
+  # 10 (LocalMark)
+  # 11 (Change)
+  valid_types = [7, 8, 10, 11]
+
+  file_set = Set()
+  recent_files = []
+
+  try:
+    while True:
+      type = unpacker.unpack()
+
+      unpacker.skip() # timestamp
+      unpacker.skip() # data_lenght in bytes
+      if not type in valid_types:
+        unpacker.skip()
+      else:
+        data = unpacker.unpack()
+        file_name = data['f']
+        if not file_name in file_set:
+          file_set.add(file_name)
+          recent_files.append(file_name)
+  except msgpack.exceptions.OutOfData as e:
+    # all data are processed
+    pass
+  return recent_files
+
 
 # convert string into a (char -> list) map
 # the list contains the indices of char position in string
@@ -162,9 +229,7 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     prefix = os.path.expanduser(os.path.normpath(prefix))
 
     # get nvim recent files
-    nvim = attach('child', argv=["nvim", "--embed"])
-    nvim.command('let nfasd_history = v:oldfiles')
-    history = nvim.vars['nfasd_history']
+    history = nvim_oldfiles(shada_path())
 
     cwd = os.getcwd()
 

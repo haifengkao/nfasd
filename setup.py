@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='nfasd',
-      version='0.12',
+      version='0.13',
       description='fasd for neovim',
       keywords='fasd neovim nvim nyaovim jumplist',
       url='http://github.com/haifengkao/nfasd',
@@ -12,7 +12,7 @@ setup(name='nfasd',
       scripts=['bin/nfasd', 'bin/register-python-argcomplete-menu'],
       install_requires=[
           'argcomplete',
-          'neovim',
+          'msgpack-python',
       ],
       classifiers=[
         'Development Status :: 3 - Alpha',
