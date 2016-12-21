@@ -35,6 +35,12 @@ Add the following to :code:`~/.bashrc` or :code:`~/.zshrc`
 Then you can press :code:`n myPro<tab>`
 to get :code:`n ~/myProject`
 
+Tips
+----
+To increase the number of recent files to 1000, add the following line in your `~/.config/nvim/init.vim`
+::
+  set shada=!,'1000,<50,s10,h
+
 Special Thanks
 --------------
 `fasd <https://github.com/clvv/fasd>`_ : the awesome command line tool
