@@ -37,7 +37,7 @@ to get :code:`n ~/myProject`
 
 Tips
 ----
-To increase the number of recent files to 1000, add the following line in your `~/.config/nvim/init.vim`
+To increase the number of recent files to 1000, add the following line to your `~/.config/nvim/init.vim`
 ::
   set shada=!,'1000,<50,s10,h
 
