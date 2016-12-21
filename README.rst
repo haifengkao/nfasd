@@ -35,6 +35,14 @@ Add the following to :code:`~/.bashrc` or :code:`~/.zshrc`
 Then you can press :code:`n myPro<tab>`
 to get :code:`n ~/myProject`
 
+`-e` specifies which executable to open the file
+
+If you want to exclude certain file patterns,
+use the `--exclude` option, e.g.
+::
+    alias n=`nfasd -e nvim --exclude git`
+
+
 Special Thanks
 --------------
 `fasd <https://github.com/clvv/fasd>`_ : the awesome command line tool

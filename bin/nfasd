@@ -5,6 +5,7 @@ import os     # to execute nvim
 import platform # to find XDG_DATA_HOME
 import operator
 import msgpack # to parse shada
+import re
 from sets import Set
 # from argcomplete import warn # logging
 
@@ -258,6 +259,10 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
     seen = {}
     collection = [seen.setdefault(x, x) for x in collection if x not in seen]
 
+    if parsed_args.exclude is not None:
+      exclude = re.compile(parsed_args.exclude)
+      collection = [x for x in collection if not exclude.search(x)]
+
     res = exist_filter(collection, MAX_OUTPUT_NUMBER)
 
     # if the result is a subdir of current working dir
@@ -271,6 +276,9 @@ def nvim_recent_files(prefix, parsed_args, **kwargs):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-e", help='the executable name of neovim')
+
+# the text is copied from man grep
+parser.add_argument("--exclude", help='If specified, it excludes files matching the given filename pattern. Patterns are matched to the full path specified, not only to the filename component. The pattern is matched by python re module')
 parser.add_argument("filepath", help='the path of the recent file').completer = nvim_recent_files
 
 def my_validator(current_input, keyword_to_check_against):
