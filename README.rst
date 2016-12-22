@@ -43,6 +43,12 @@ use the `--exclude` option, e.g.
     alias n=`nfasd -e nvim --exclude tmp`
 
 
+Tips
+----
+To increase the number of recent files to 1000, add the following line to your `~/.config/nvim/init.vim`
+::
+  set shada=!,'1000,<50,s10,h
+
 Special Thanks
 --------------
 `fasd <https://github.com/clvv/fasd>`_ : the awesome command line tool
