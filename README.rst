@@ -40,7 +40,7 @@ to get :code:`n ~/myProject`
 If you want to exclude certain file patterns,
 use the `--exclude` option, e.g.
 ::
-    alias n=`nfasd -e nvim --exclude git`
+    alias n=`nfasd -e nvim --exclude tmp`
 
 
 Special Thanks
