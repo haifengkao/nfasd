@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 import argcomplete, argparse
 import os     # to execute nvim
@@ -320,6 +321,7 @@ if os.path.exists(path):
 
 # if __name__ == "__main__":
   # print match_fuzzy_substring('drop', 'Dropbox/p')         # =>None
+  # print match_fuzzy_substring('ber', u"Hi!Übersicht")      # =>None
   # print match_fuzzy_substring('drop', 'dropbox/p')         # =>(3, 0)
   # print match_fuzzy_substring('aa', 'aa')                  # =>(1, 0)
   # print match_fuzzy_substring('aa', 'aab')                 # =>(1, 0)
