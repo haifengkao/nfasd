@@ -7,7 +7,6 @@ import platform # to find XDG_DATA_HOME
 import operator
 import msgpack # to parse shada
 import re
-from sets import Set
 # from argcomplete import warn # logging
 
 def shada_path():
@@ -52,7 +51,7 @@ def nvim_oldfiles(shada_path):
   # 11 (Change)
   valid_types = [7, 8, 10, 11]
 
-  file_set = Set()
+  file_set = set()
   recent_files = []
 
   try:
