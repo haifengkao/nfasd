@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='nfasd',
-      version='0.15',
+      version='0.16',
       description='fasd for neovim',
       keywords='fasd neovim nvim nyaovim jumplist',
       url='http://github.com/haifengkao/nfasd',
