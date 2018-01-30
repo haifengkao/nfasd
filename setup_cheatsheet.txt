@@ -1,6 +1,12 @@
+requirement
+-----------
+pip3 install -U pip twine
+
 upload to pypi
 --------------
-python setup.py sdist upload
+update version in setup.py
+python setup.py sdist
+twine upload dist/*
 
 install locally
 --------------
