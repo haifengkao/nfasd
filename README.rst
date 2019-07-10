@@ -24,6 +24,11 @@ Alternatively, if you use zsh, add the following to :code:`~/.zshrc`
     # optional but highly recommended
     setopt NO_LIST_BEEP
 
+For fish shell, you need to install
+::
+     pip install argcomplete
+
+register-python-argcomplete --shell fish my-favourite-script.py > ~/.config/fish/my-favourite-script.py.fish
 Configuration
 -------------
 
