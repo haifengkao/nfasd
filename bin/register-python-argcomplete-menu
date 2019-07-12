@@ -56,6 +56,14 @@ _python_argcomplete_zsh() {
 
   [[ ${argv[${argv[(I)nospace]:-0}-1]} = -o ]] && suf=( -S '' )
 
+  # debuf messages
+  # echo "====log===="
+  # echo $COMP_CWORD
+  # echo $COMP_POINT
+  # echo $COMP_TYPE
+  # echo $words
+  # echo "====end===="
+
   # get result from python script
   val=`_python_argcomplete_lst %(executable)s`
 
