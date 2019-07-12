@@ -1,6 +1,6 @@
 requirement
 -----------
-pip3 install -U pip twine
+python3 -m pip install --upgrade setuptools wheel twine
 
 upload to pypi
 --------------
