@@ -45,7 +45,8 @@ _python_argcomplete_zsh() {
   local -x COMP_LINE="$words"
   local -A savejobstates savejobtexts
 
-  (( COMP_POINT = 1 + ${#${(j. .)words[1,CURRENT]}} + $#QIPREFIX + $#IPREFIX + $#PREFIX ))
+  # copied from  zsh/Completion/bashcompinit
+  (( COMP_POINT = 1 + ${#${(j. .)words[1,CURRENT-1]}} + $#QIPREFIX + $#IPREFIX + $#PREFIX ))
   (( COMP_CWORD = CURRENT - 1))
   COMP_WORDS=( $words )
   BASH_VERSINFO=( 2 05b 0 1 release )
