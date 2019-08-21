@@ -314,7 +314,7 @@ if os.path.exists(path):
   exe_name = 'nvim'
   if args.e and len(args.e):
     exe_name = args.e # use the user-defined executable name
-  exec_str = exe_name + ' ' + path
+  exec_str = exe_name + ' "' + path + '"'
 
   os.system(exec_str)
 
