@@ -14,7 +14,6 @@ setup(name='nfasd',
       author_email='haifeng@cocoaspice.in',
       license='MIT',
       long_description=long_description,
-      long_description_content_type='text/x-rst',
       packages=['nfasd'],
       scripts=['bin/nfasd', 'bin/register-python-argcomplete-menu'],
       install_requires=[
