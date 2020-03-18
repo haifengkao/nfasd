@@ -64,14 +64,19 @@ def nvim_oldfiles(shada_path):
         unpacker.skip()
       else:
         data = unpacker.unpack()
-        file_name = data['f']
+        file_name = data[b'f']
         if not file_name in file_set:
           file_set.add(file_name)
           recent_files.append(file_name)
   except msgpack.exceptions.OutOfData as e:
     # all data are processed
     pass
-  return recent_files
+
+  # convert byte string to utf8
+  recent_files_utf8 = []
+  for filename in recent_files:
+    recent_files_utf8.append(filename.decode('utf-8'))
+  return recent_files_utf8
 
 
 # convert string into a (char -> list) map
@@ -80,11 +85,11 @@ def nvim_oldfiles(shada_path):
 def index_map(user_input, string):
   indices = {}
   for ch in user_input:
-    if not indices.has_key(ch):
+    if ch not in indices:
       indices[ch] = []
 
   for i, ch in enumerate(string):
-    if indices.has_key(ch):
+    if ch in indices:
       index = indices[ch]
       index.append(i)
 
@@ -319,23 +324,23 @@ if os.path.exists(path):
   os.system(exec_str)
 
 # if __name__ == "__main__":
-  # print match_fuzzy_substring('drop', 'Dropbox/p')         # =>None
-  # print match_fuzzy_substring('ber', u"Hi!Übersicht")      # =>None
-  # print match_fuzzy_substring('drop', 'dropbox/p')         # =>(3, 0)
-  # print match_fuzzy_substring('aa', 'aa')                  # =>(1, 0)
-  # print match_fuzzy_substring('aa', 'aab')                 # =>(1, 0)
-  # print match_fuzzy_substring('aa', 'baa')                 # =>(2, 0)
-  # print match_fuzzy_substring('aa', 'bbaa')                # =>(3, 0)
-  # print match_fuzzy_substring('aa', 'aabb')                # =>(1, 0)
-  # print match_fuzzy_substring('aa', 'abba')                # =>(3, 1)
-  # print match_fuzzy_substring('aaa', 'ababa')              # =>(4, 2)
-  # print match_fuzzy_substring('init', 'ing/install.sh')    # =>(7, 2)
-  # print match_fuzzy_substring('init', 'ing/nvim/init.vim') # =>(12, 0)
-  # print match_fuzzy_substring('init', 'ing/insitall.sh')   # =>(8, 1)
-  # print match_fuzzy_substring("foo",  "foobar")            # =>(2, 0)
-  # print match_fuzzy_substring("foo",  "FooBar")            # =>None
-  # print match_fuzzy_substring("fb",  "foobar")             # =>(3, 1)
-  # print match_fuzzy_substring("",  "foo bar")              # =>0
-  # print match_fuzzy_substring("",  "")                     # =>0
-  # print match_fuzzy_substring("f",  "")                    # =>None
+  # print(match_fuzzy_substring('drop', 'Dropbox/p'))         # =>None
+  # print(match_fuzzy_substring('ber', u"Hi!Übersicht"))      # =>None
+  # print(match_fuzzy_substring('drop', 'dropbox/p'))         # =>(3, 0)
+  # print(match_fuzzy_substring('aa', 'aa'))                 # =>(1, 0)
+  # print(match_fuzzy_substring('aa', 'aab'))                 # =>(1, 0)
+  # print(match_fuzzy_substring('aa', 'baa'))                # =>(2, 0)
+  # print(match_fuzzy_substring('aa', 'bbaa'))                # =>(3, 0)
+  # print(match_fuzzy_substring('aa', 'aabb'))                # =>(1, 0)
+  # print(match_fuzzy_substring('aa', 'abba'))                # =>(3, 1)
+  # print(match_fuzzy_substring('aaa', 'ababa'))              # =>(4, 2)
+  # print(match_fuzzy_substring('init', 'ing/install.sh'))    # =>(7, 2)
+  # print(match_fuzzy_substring('init', 'ing/nvim/init.vim')) # =>(12, 0)
+  # print(match_fuzzy_substring('init', 'ing/insitall.sh'))   # =>(8, 1)
+  # print(match_fuzzy_substring("foo",  "foobar"))            # =>(2, 0)
+  # print(match_fuzzy_substring("foo",  "FooBar"))            # =>None
+  # print(match_fuzzy_substring("fb",  "foobar"))             # =>(3, 1)
+  # print(match_fuzzy_substring("",  "foo bar"))              # =>0
+  # print(match_fuzzy_substring("",  ""))                     # =>0
+  # print(match_fuzzy_substring("f",  ""))                    # =>None
 
