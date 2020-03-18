@@ -47,6 +47,10 @@ use the `--exclude` option, e.g.
 ::
     alias n=`nfasd -e nvim --exclude tmp`
 
+Changelog
+-------------
+1.0 for python3
+0.19 for python2
 
 Tips
 ----
