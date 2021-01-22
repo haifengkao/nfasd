@@ -316,10 +316,11 @@ if not os.path.exists(path):
 # don't do anything when the file doesn't exist
 # we don't want user to accidentally create some file with strange partial file name
 if os.path.exists(path):
+  absPath = os.path.abspath(path)
   exe_name = 'nvim'
   if args.e and len(args.e):
     exe_name = args.e # use the user-defined executable name
-  exec_str = exe_name + ' "' + path + '"'
+  exec_str = exe_name + ' "' + absPath + '"'
 
   os.system(exec_str)
 
