@@ -61,6 +61,7 @@ use the `--exclude` option, e.g.
 
 Changelog
 -------------
+2.0 for nvim 0.6 new shada format
 1.0 for python3
 
 0.19 for python2
