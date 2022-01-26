@@ -64,7 +64,7 @@ def nvim_oldfiles(shada_path):
         unpacker.skip()
       else:
         data = unpacker.unpack()
-        file_name = data[b'f']
+        file_name = data['f']
         if not file_name in file_set:
           file_set.add(file_name)
           recent_files.append(file_name)
